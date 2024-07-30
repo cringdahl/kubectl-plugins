@@ -83,7 +83,7 @@ ssh_pod() {
   fi
   # Use sh as a default and switch to bash if it's available
   # shellcheck disable=SC2016
-  kubectl exec -it "$@" -- sh -c 'exec "$( command -v bash || echo sh )"'
+  kubectl exec -it "$@" -- /bin/dash -c 'exec "$( command -v /bin/bash || echo /bin/sh )"'
 }
 
 print_usage() {
