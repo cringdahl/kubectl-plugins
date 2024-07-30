@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $# -lt 1 ]; then
-    echo "Force deletes every resource, by type, by removing all its finalizers and then deleting the resource"
+    echo "Force deletes each resource, by type, by removing all its finalizers and then deleting the resource"
     echo
     echo "Usage:     kubectl force delete each <kind>"
     echo "Example:   kubectl force delete each pod"
