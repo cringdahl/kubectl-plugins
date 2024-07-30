@@ -1,0 +1,21 @@
+#!/bin/bash
+
+if [ $# -lt 1 ]; then
+    echo "Force deletes every resource, by type, by removing all its finalizers and then deleting the resource"
+    echo
+    echo "Usage:     kubectl force delete each <kind>"
+    echo "Example:   kubectl force delete each pod"
+    echo
+    exit 1
+fi
+
+TYPE=$(echo "$@" |  cut -d' ' -f1)
+NS=$(echo "$@" |  cut -d' ' -f 2-)
+LIST=$(kubectl get $@ -o go-template --template '{{range .items}}{{.metadata.name}}{{" "}}{{end}}')
+
+for L in $LIST; do
+  kubectl patch $TYPE $L $NS --type='json' -p='[{"op": "remove", "path": "/metadata/finalizers"}]'
+done
+
+kubectl delete $TYPE $LIST $NS
+
