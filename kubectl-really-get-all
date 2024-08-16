@@ -32,6 +32,6 @@ else
   NAMESPACED_ONLY="--namespaced"
 fi
 
-RESOURCES=$(kubectl api-resources --verbs=list ${NAMESPACED_ONLY} -o name | tr "\n" ,)
+RESOURCES=$(kubectl api-resources --verbs=list ${NAMESPACED_ONLY} -o name | tr "\n" , | sed 's/,events[^,]*,/,/g')
 kubectl get ${RESOURCES%?} --show-kind --ignore-not-found $@
 
