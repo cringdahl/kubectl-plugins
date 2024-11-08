@@ -4,6 +4,7 @@ set -e
 
 ssh_node() {
   node=$1
+  image=${KUBECTL_SSH_IMAGE:-busybox}
   shift
   if [ "$node" = "" ]; then
     node=$(kubectl get node -o name "$@" | sed 's/node\///' | tr '\n' ' ')
@@ -35,7 +36,7 @@ spec:
   nodeName: $node
   containers:
   - name: ssh-node
-    image: busybox
+    image: $image
     imagePullPolicy: IfNotPresent
     command: ["chroot", "/host"]
     tty: true
@@ -66,7 +67,7 @@ EOF
 
   echo "Created $pod"
   echo "Waiting for container to start..."
-  kubectl wait -n "$ns" --for=condition=Ready --timeout 60s "$pod" "$@" >/dev/null
+  kubectl wait -n "$ns" --for=condition=Ready --timeout 120s "$pod" "$@" >/dev/null
 
   if [ -z "$command" ]; then
     kubectl attach -n "$ns" -it "$pod" -c ssh-node "$@"
