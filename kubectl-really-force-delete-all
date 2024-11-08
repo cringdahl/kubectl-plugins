@@ -1,0 +1,20 @@
+#!/bin/bash
+
+if [ $# -lt 1 ]; then
+    echo "Force deletes every resource in the namespace by removing all its finalizers and then deleting the resource"
+    echo
+    echo "Usage:     kubectl really force delete all"
+    echo "Example:   kubectl really force delete all -n some-namespace"
+    echo
+    exit 1
+fi
+RESOURCES=$(kubectl api-resources --verbs=list --namespaced -o name | tr "\n" , | sed 's/,events[^,]*,/,/g')
+NS=$@
+LIST=$(kubectl get ${RESOURCES%?} ${NS} -o go-template --template '{{range .items}}{{.kind}}/{{.metadata.name}}{{" "}}{{end}}' 2>/dev/null)
+
+for L in $LIST; do
+  kubectl patch $L $NS --type='json' -p='[{"op": "remove", "path": "/metadata/finalizers"}]'
+done
+
+kubectl delete $LIST $NS
+
